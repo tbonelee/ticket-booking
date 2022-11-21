@@ -45,7 +45,7 @@ public class OrderService {
         .orElseThrow(() -> new ConcertNotFoundException(concertId));
 
     // get a ticket
-    List<Ticket> availableTickets = concert.getAvailableTickets(1);
+    List<Ticket> availableTickets = concert.getAvailableTickets();
 
     // find which is not preoccupied (처음 구현시 생각 못 한 부분)
     Ticket ticket = availableTickets.stream()

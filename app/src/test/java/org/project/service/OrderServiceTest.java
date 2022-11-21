@@ -46,7 +46,7 @@ public class OrderServiceTest {
     Member mockMember = mock(Member.class);
     Ticket mockTicket = mock(Ticket.class);
     given(concertRepository.findById(concertId)).willReturn(Optional.of(mockConcert));
-    given(mockConcert.getAvailableTickets(1)).willReturn(new ArrayList<>(List.of(mockTicket)));
+    given(mockConcert.getAvailableTickets()).willReturn(new ArrayList<>(List.of(mockTicket)));
     given(preoccupyRepository.isPreoccupied(mockTicket.getId())).willReturn(false);
     LocalDateTime validUntil = LocalDateTime.now(clock)
         .plusSeconds(orderProperties.getPreoccupyExpireTime());
@@ -58,7 +58,7 @@ public class OrderServiceTest {
     assertThat(preoccupyResult.getTicketId()).isEqualTo(mockTicket.getId());
     assertThat(preoccupyResult.getValidUntil()).isEqualTo(validUntil);
     then(concertRepository).should().findById(concertId);
-    then(mockConcert).should().getAvailableTickets(1);
+    then(mockConcert).should().getAvailableTickets();
     then(preoccupyRepository).should()
         .save(mockTicket, mockMember, orderProperties.getPreoccupyExpireTime());
   }
@@ -86,14 +86,14 @@ public class OrderServiceTest {
     Concert mockConcert = mock(Concert.class);
     given(concertRepository.findById(concertId)).willReturn(Optional.of(mockConcert));
     TicketNotFoundException ticketNotFoundException = new TicketNotFoundException(concertId);
-    given(mockConcert.getAvailableTickets(1)).willThrow(ticketNotFoundException);
+    given(mockConcert.getAvailableTickets()).willThrow(ticketNotFoundException);
 
     // when
     // then
     assertThatThrownBy(() -> orderService.preoccupy(concertId, mock(Member.class)))
         .isInstanceOf(TicketNotFoundException.class);
     then(concertRepository).should().findById(concertId);
-    then(mockConcert).should().getAvailableTickets(1);
+    then(mockConcert).should().getAvailableTickets();
     then(preoccupyRepository).shouldHaveNoInteractions();
   }
 }

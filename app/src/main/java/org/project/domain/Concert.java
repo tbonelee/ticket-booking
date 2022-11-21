@@ -40,14 +40,24 @@ public class Concert extends BaseTimeEntity {
     this.description = description;
   }
 
+  public List<Ticket> getAvailableTickets() {
+    // TODO: 티켓이 많은 경우를 고려해서 우선은 휴리스틱하게 매직 넘버를 사용 -> 더 나은 방법 고려해보기
+    return getTickets(50);
+  }
+
   public List<Ticket> getAvailableTickets(Integer quantity) {
+    List<Ticket> ret = getTickets(quantity);
+    if (ret.size() < quantity) {
+      throw new TicketNotFoundException(this);
+    }
+    return ret;
+  }
+
+  private List<Ticket> getTickets(Integer quantity) {
     List<Ticket> ret = tickets.stream()
         .filter(ticket -> ticket.getTicketOrder() == null)
         .limit(quantity)
         .collect(Collectors.toCollection(ArrayList::new));
-    if (ret.size() < quantity) {
-      throw new TicketNotFoundException(this);
-    }
     return ret;
   }
 
